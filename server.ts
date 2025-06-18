@@ -6,7 +6,7 @@ import usersRoutes from './routes/user.routes'
 const app: Application = express()
 
 app.use(express.json())
-app.use('/api/books',bookRoutes)
+app.use('/api/books',bookRoutes) // sample API end point 
 app.use('/api/users', usersRoutes)
 
 const PORT = 3000
