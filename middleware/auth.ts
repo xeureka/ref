@@ -1,5 +1,5 @@
 
-import { verifyToken } from '../services/tokenGenerator'
+import { verifyAccessToken } from '../services/tokenGenerator'
 import express,{ Request,Response,NextFunction } from 'express'
 import dotenv from 'dotenv'
 dotenv.config()
@@ -14,14 +14,13 @@ export function adminAuth(req: Request, res: Response, next: NextFunction){
     }
 
     try {
-        const decoded: any = verifyToken(token,process.env.JWR_SECRET!);
+        const decoded: any = verifyAccessToken(token,process.env.JWR_SECRET!);
 
         (req as any).user = decoded;
         
         if (decoded.userRole !== 'admin'){
             res.status(403).json({message:"Access Deined, Admins only can access this !!"})
         }
-
 
         next();
        
@@ -34,7 +33,7 @@ export function loggedInAuth(req: Request, res: Response, next: NextFunction){
     try {
         
         const token: string | any = req.header('authorization') 
-        const decoded = verifyToken(token,process.env.JWR_SECRET!)
+        const decoded = verifyAccessToken(token,process.env.JWR_SECRET!)
     
         if (!decoded ){
             res.status(404).json({message: 'No or Invalid Token Provided !!'})

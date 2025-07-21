@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 
-export function generateToken(email: string, role: string = 'user'): string{
+export function signAccessToken(email: string, role: string = 'user'): string{
     
     const token = jwt.sign({userEmail: email, userRole: role }, process.env.JWR_SECRET!,{
         expiresIn: '15m'
@@ -13,8 +13,14 @@ export function generateToken(email: string, role: string = 'user'): string{
     return token
 }
 
+export function signRefreshToken(email: string,role: string = 'user'): string{
+    return jwt.sign({userEmail: email, userRole: role }, process.env.refresh_secret!,{
+        expiresIn: '17d'
+    })
+}
 
-export function verifyToken(token: string,secretKey: string):string | jwt.JwtPayload {
+
+export function verifyAccessToken(token: string,secretKey: string):string | jwt.JwtPayload {
     try {
         const decoded = jwt.verify(token, process.env.JWR_SECRET!)
         return decoded;
@@ -23,3 +29,11 @@ export function verifyToken(token: string,secretKey: string):string | jwt.JwtPay
     }
 }
 
+export function verifyRefreshToken(token: string,secretKey: string):string | jwt.JwtPayload {
+    try {
+        const decoded = jwt.verify(token, process.env.refresh_secret!)
+        return decoded;
+    } catch (error) {
+        throw new Error('Invalid Token')
+    }
+}
