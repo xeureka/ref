@@ -1,79 +1,82 @@
 import express from 'express'
-import { hashPassword,validatePassword } from '../utils/hash'
-import Users from '../models/user.model'
-import { generateToken } from '../services/tokenGenerator'
-import { registerUserSchema,loginUserSchema } from '../schemas/user.schema'
-import { validateData } from '../middleware/validate'
+// import { hashPassword,validatePassword } from '../utils/hash'
+// import Users from '../models/user.model'
+// import { generateToken } from '../services/tokenGenerator'
+// import { registerUserSchema,loginUserSchema } from '../schemas/user.schema'
+// import { validateData } from '../middleware/validate'
+import { seeAllUsers } from '../controller/user.controller'
 
 const router = express.Router()
 
-router.post('/register',validateData(registerUserSchema), async (req,res) => {
-    try {
+router.get('/', seeAllUsers)
 
-        const existingUser = await Users.findOne({email: req.body.email}); 
+// router.post('/register',validateData(registerUserSchema), async (req,res) => {
+//     try {
 
-        if (existingUser){
-            res.status(404).json({message: "User Already Registered !"})
-            return;
-        }
+//         const existingUser = await Users.findOne({email: req.body.email}); 
 
-        let securePassword = await hashPassword(req.body.password);
+//         if (existingUser){
+//             res.status(404).json({message: "User Already Registered !"})
+//             return;
+//         }
 
-        let newUser = new Users({
-            name: req.body.name,
-            email: req.body.email,
-            password: securePassword
-        })
+//         let securePassword = await hashPassword(req.body.password);
 
-        const savedNewUser = await newUser.save()
+//         let newUser = new Users({
+//             name: req.body.name,
+//             email: req.body.email,
+//             password: securePassword
+//         })
 
-        const token = generateToken(newUser.email, newUser.role)
-        res.header('authoziation',token)
-        res.status(201).json({message: 'User Registered Successfully !!'})
+//         const savedNewUser = await newUser.save()
 
-    } catch (error) {
-        console.log('Error Registering the user!')
-        res.status(400).json({message: error})
-    }
-})
+//         const token = generateToken(newUser.email, newUser.role)
+//         res.header('authoziation',token)
+//         res.status(201).json({message: 'User Registered Successfully !!'})
 
-router.post('/login',validateData(loginUserSchema), async (req,res) => {
-    try {
-        const isUserExist = await Users.findOne({email: req.body.email});
-        if (!isUserExist){
-            res.status(404).json({message: 'User Does not exist please register !'})
-            return;
-        }
+//     } catch (error) {
+//         console.log('Error Registering the user!')
+//         res.status(400).json({message: error})
+//     }
+// })
 
-        const { password } = req.body;
-        const validPassword = validatePassword(password,isUserExist.password);
+// router.post('/login',validateData(loginUserSchema), async (req,res) => {
+//     try {
+//         const isUserExist = await Users.findOne({email: req.body.email});
+//         if (!isUserExist){
+//             res.status(404).json({message: 'User Does not exist please register !'})
+//             return;
+//         }
 
-        if (!validPassword){
-            res.status(401).json({message: "Email or Password Incorrect !!"})
-            return;
-        }
+//         const { password } = req.body;
+//         const validPassword = validatePassword(password,isUserExist.password);
 
-        const token = generateToken(isUserExist.email, isUserExist.role)
-        res.header('authorization',token)
-        res.status(201).json('Login Successful !!')
+//         if (!validPassword){
+//             res.status(401).json({message: "Email or Password Incorrect !!"})
+//             return;
+//         }
 
-    } catch (error) {
-        res.status(400).json({message: 'Error loggin the user!'});
-        console.log(error)
-        return;
-    }
-})
+//         const token = generateToken(isUserExist.email, isUserExist.role)
+//         res.header('authorization',token)
+//         res.status(201).json('Login Successful !!')
 
-// path to logout the user
-router.post('/logout', async (req,res) => {
-    try {
-        res.clearCookie('Authorization').json({
-            message: "Logged Out Successfully !!"
-        }).status(200)
-    } catch (error) {
-        console.log('Error Logging Out the User !!')
-    }
-})
+//     } catch (error) {
+//         res.status(400).json({message: 'Error loggin the user!'});
+//         console.log(error)
+//         return;
+//     }
+// })
+
+// // path to logout the user
+// router.post('/logout', async (req,res) => {
+//     try {
+//         res.clearCookie('Authorization').json({
+//             message: "Logged Out Successfully !!"
+//         }).status(200)
+//     } catch (error) {
+//         console.log('Error Logging Out the User !!')
+//     }
+// })
 
 export default router
 
