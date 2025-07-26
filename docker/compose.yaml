@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  web:
+    depends_on:
+      - api
+    build: ./frontend
+    ports:
+      - 5173:5173
+    environment:
+      VITE_API_URL: http://localhost:8000
+    develop:
+      watch:
+        - path: ./frontend/package.json
+          action: rebuild
+        - path: ./frontend/package-lock.json
+          action: rebuild
+        - path: ./frontend
+          target: /app
+          action: sync
+
+  api:
+    build: ./backend
+    ports:
+      - 8000:8000
+    environment:
+      # to be replaced with an actual mongo atlas URL
+      DB_URL: mongodb+srv://<username>:<password>@<cluster>.mongodb.net/anime?retryWrites=true&w=majority
+    develop:
+      watch:
+        - path: ./backend/package.json
+          action: rebuild
+        - path: ./backend/package-lock.json
+          action: rebuild
+        - path: ./backend
+          target: /app
+          action: sync
